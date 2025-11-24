@@ -19,21 +19,21 @@ line_sep:       .asciiz "-----------\n"
 board:          .byte 0,0,0, 0,0,0, 0,0,0
 
 # Linhas vencedoras (8 linhas * 3 indices)
-winning_lines: .byte 0,1,2, 3,4,5, 6,7,8, 0,3,6, 1,4,7, 2,5,8, 0,4,8, 2,4,6
+winning_lines:  .byte 0,1,2, 3,4,5, 6,7,8, 0,3,6, 1,4,7, 2,5,8, 0,4,8, 2,4,6
 
         .text
         .globl main
 
 main:
-    la $s0, board           # $s0 = endereço fixo do tabuleiro
-    li $s1, 0               # $s1 = contador de turnos (0 = jogador começa)
+    la $s0, board            # $s0 = endereço fixo do tabuleiro
+    li $s1, 0                # $s1 = contador de turnos (0 = jogador começa)
 
 game_loop:
     jal print_board
 
     # checa vencedor/empate -> retorna em $v0
     jal check_winner
-    move $t0, $v0           # $t0: 0 nenhum, 1 jogador, 2 cpu, 3 empate
+    move $t0, $v0            # $t0: 0 nenhum, 1 jogador, 2 cpu, 3 empate
     beq $t0, $zero, continue_game
 
     # imprime resultado conforme $t0
@@ -94,7 +94,7 @@ print_board:
     li $v0, 4
     syscall
 
-    li $t0, 0               # índice base (0,3,6)
+    li $t0, 0                # índice base (0,3,6)
 print_row_loop:
     # cell t0 (col 0)
     la $t1, board
@@ -240,7 +240,7 @@ player_invalid:
     j player_move
 
 # ---------------------------
-# cpu_move (CORRIGIDA: usa $s5, $s6, $s7, $t8, $t9)
+# cpu_move
 # implementa a logica da CPU (ganhar, bloquear, centro, canto, lado)
 # ---------------------------
 cpu_move:
@@ -250,7 +250,7 @@ cpu_move:
     sw $s2, 0($sp)
     sw $s3, 4($sp)
     sw $s4, 8($sp)
-    sw $s5, 12($sp) # $s5, $s6, $s7 são usados para lógica da CPU
+    sw $s5, 12($sp) 
     sw $s6, 16($sp)
     sw $s7, 20($sp)
 
@@ -276,8 +276,8 @@ cpu_search_win:
     lb $s4, 0($s4)           # val c -> s4
 
     # contar quantos val == 2 (CPU)
-    li $s5, 0               # $s5 = Contador de marcas 'O' (2)
-    li $t9, 2               # $t9 = Valor 'O' (2)
+    li $s5, 0                # $s5 = Contador de marcas 'O' (2)
+    li $t9, 2                # $t9 = Valor 'O' (2)
     beq $s2, $t9, inc_w1
     j chk_w_b
 inc_w1:
@@ -294,17 +294,17 @@ inc_w3:
     addi $s5, $s5, 1
 
 eval_win_cnt:
-    li $t8, 2               # $t8 = Dois em linha (critério)
+    li $t8, 2                # $t8 = Dois em linha (critério)
     bne $s5, $t8, next_line_win
     # se existem 2 O's e 1 vazio -> joga para vencer
-    li $s6, 0               # $s6 = Valor 'Vazio' (0)
+    li $s6, 0                # $s6 = Valor 'Vazio' (0)
     beq $s2, $s6, put_move_a_win
     beq $s3, $s6, put_move_b_win
     beq $s4, $s6, put_move_c_win
     j next_line_win
 
 put_move_a_win:
-    la $s7, board           # $s7 é o novo $t16
+    la $s7, board            # $s7 é o novo $t16
     add $s7, $s7, $t3
     li $t9, 2
     sb $t9, 0($s7)
@@ -328,7 +328,7 @@ next_line_win:
     j cpu_search_win
 
 # ---------------------------
-# cpu_block_search: procura bloquear jogador (1) (CORRIGIDA)
+# cpu_block_search: procura bloquear jogador (1)
 # ---------------------------
 cpu_block_search:
     la $t0, winning_lines
@@ -351,8 +351,8 @@ cpu_search_block:
     lb $s4, 0($s4)
 
     # contar quantos val == 1 (player)
-    li $s5, 0               # $s5 = Contador de marcas 'X' (1)
-    li $t9, 1               # $t9 = Valor 'X' (1)
+    li $s5, 0                # $s5 = Contador de marcas 'X' (1)
+    li $t9, 1                # $t9 = Valor 'X' (1)
     beq $s2, $t9, inc_b1
     j chk_b_b
 inc_b1:
@@ -372,7 +372,7 @@ eval_blk_cnt:
     li $t8, 2
     bne $s5, $t8, next_line_block
     # se existem 2 X e 1 vazio -> bloqueia
-    li $s6, 0               # $s6 = Valor 'Vazio' (0)
+    li $s6, 0                # $s6 = Valor 'Vazio' (0)
     beq $s2, $s6, put_move_a_blk
     beq $s3, $s6, put_move_b_blk
     beq $s4, $s6, put_move_c_blk
@@ -462,7 +462,7 @@ cpu_take_side:
     beq $t3, $zero, cpu_put_side5
     lb $t4, 7($t0)
     beq $t4, $zero, cpu_put_side7
-    # se nada (teoricamente impossível), volta
+    # se nada, volta
     j cpu_move_epilogue
 
 cpu_put_side1:
@@ -495,11 +495,11 @@ cpu_move_epilogue:
     jr $ra
 
 # ---------------------------
-# check_winner (REORGANIZADA para um epílogo único)
+# check_winner
 # Retorna em $v0: 0 = nenhum, 1 = jogador, 2 = cpu, 3 = empate
 # ---------------------------
 check_winner:
-    # prólogo: salva $ra e $s2..$s7
+    # prólogo
     addi $sp, $sp, -32
     sw $ra, 28($sp)
     sw $s2, 0($sp)
@@ -566,7 +566,6 @@ is_draw:
     li $v0, 3
     j winner_epilogue
 
-# Epílogo de check_winner: restaura regs e retorna
 winner_epilogue:
     lw $ra, 28($sp)
     lw $s2, 0($sp)
