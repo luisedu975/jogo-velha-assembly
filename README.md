@@ -1,73 +1,150 @@
-⭕❌ Jogo da Velha (Tic-Tac-Toe) em Assembly MIPS
-Este repositório contém uma implementação completa do clássico Jogo da Velha desenvolvido em Assembly MIPS. O projeto foi criado como parte da avaliação da disciplina de Infraestrutura de Hardware e roda no simulador MARS.
+# 🎮 Jogo da Velha em Assembly (MIPS)
 
-O destaque deste projeto é a implementação de uma CPU Inteligente, que não joga aleatoriamente, mas segue uma heurística de prioridades para tentar vencer ou bloquear o jogador.
+Este projeto implementa um **Jogo da Velha (Tic-Tac-Toe)** em **Assembly MIPS**, permitindo que o jogador enfrente uma CPU com lógica estratégica para tomada de decisões.
 
-👥 Autores
-Projeto desenvolvido pelos alunos da turma CC-A:
+---
 
-Luis Eduardo Bérard
+## 📌 Visão Geral
 
-Pablo José Cintra
+* O jogador utiliza o símbolo **X**.
+* A CPU utiliza o símbolo **O**.
+* O jogo ocorre em um tabuleiro 3x3.
+* O jogador sempre inicia a partida.
+* A CPU possui lógica inteligente, priorizando:
 
-João Victor Uchoa
+  1. Vitória imediata
+  2. Bloqueio do jogador
+  3. Centro do tabuleiro
+  4. Cantos
+  5. Laterais
 
-Yan Nunes
+---
 
-🚀 Funcionalidades
-Interface via Console: Tabuleiro desenhado em ASCII atualizado a cada jogada.
+## 🧠 Lógica da CPU
 
-Validação de Entrada: O sistema impede jogadas em casas ocupadas ou coordenadas inválidas (fora do intervalo 1-3).
+A função `cpu_move` segue a seguinte ordem de prioridade:
 
-Detecção de Fim de Jogo: Verifica automaticamente vitórias (linhas, colunas, diagonais) ou empates (velha).
+1. Verificar se há possibilidade de vitória (2 O's e 1 espaço vazio)
+2. Bloquear jogadas do jogador (2 X's e 1 espaço vazio)
+3. Jogar no centro (posição 4)
+4. Jogar em um dos cantos (0, 2, 6, 8)
+5. Jogar nas laterais (1, 3, 5, 7)
 
-Inteligência Artificial (CPU): A CPU joga com base em uma lógica de prioridade:
+Essa lógica garante que a CPU jogue de forma competitiva.
 
-Vencer: Se tiver 2 peças numa linha, completa a terceira.
+---
 
-Bloquear: Se o jogador tiver 2 peças numa linha, bloqueia a terceira.
+## 🗂 Estrutura de Dados
 
-Estratégia: Prioriza o centro, depois os cantos e por último as laterais.
+### Tabuleiro
 
-🛠️ Tecnologias Utilizadas
-Linguagem: Assembly MIPS (32-bit)
+Representado por um vetor de 9 bytes:
 
-Simulador: MARS (MIPS Assembler and Runtime Simulator)
+```
+board: .byte 0,0,0, 0,0,0, 0,0,0
+```
 
-Arquitetura: Lógica baseada em registradores, chamadas de sistema (syscalls) e manipulação direta de memória (.data).
+* `0` = vazio
+* `1` = jogador (X)
+* `2` = CPU (O)
 
-🎮 Como Executar
-Para rodar este jogo, você precisará do simulador MARS instalado em sua máquina (requer Java).
+### Linhas Vencedoras
 
-Baixe o arquivo .asm deste repositório.
+```
+winning_lines: .byte
+  0,1,2, 3,4,5, 6,7,8,
+  0,3,6, 1,4,7, 2,5,8,
+  0,4,8, 2,4,6
+```
 
-Abra o MARS.
+Representa todas as combinações possíveis de vitória.
 
-Vá em File > Open e selecione o código.
+---
 
-Monte o código pressionando F3 (ou no menu Run > Assemble).
+## ▶️ Como Executar
 
-Execute o programa pressionando F5 (ou no menu Run > Go).
+Este jogo pode ser executado em simuladores MIPS como:
 
-Controles
-O jogo pedirá coordenadas para sua jogada. O tabuleiro é organizado em Linhas (1-3) e Colunas (1-3).
+* **MARS (MIPS Assembler and Runtime Simulator)**
+* **QtSPIM**
 
-Exemplo de input:
+### Passos:
 
-Plaintext
+1. Abra o simulador (MARS ou QtSPIM)
+2. Carregue o arquivo `.asm`
+3. Execute o programa
+4. Informe a linha e coluna quando solicitado (valores entre 1 e 3)
 
-Escolha a linha (1-3): 2
-Escolha a coluna (1-3): 2
-Isso marcará um X no centro do tabuleiro.
+---
 
-🧠 Detalhes da Implementação Técnica
-Para fins de avaliação acadêmica, destacam-se os seguintes pontos do código:
+## 🕹️ Como Jogar
 
-Mapeamento de Memória: O tabuleiro é tratado como um array linear de 9 bytes (board), onde 0 é vazio, 1 é Jogador e 2 é CPU.
+Durante sua vez, será exibido:
 
-Lógica de Busca: A CPU utiliza um array de winning_lines (contendo os índices das 8 combinações de vitória possíveis) para iterar e calcular sua melhor jogada.
+```
+Sua jogada (X)
+Escolha a linha (1-3):
+Escolha a coluna (1-3):
+```
 
-Gerenciamento de Pilha: As funções cpu_move e check_winner utilizam corretamente o ponteiro de pilha ($sp) para salvar registradores ($s0-$s7 e $ra), garantindo que o fluxo do programa não seja corrompido durante chamadas de sub-rotinas aninhadas.
+Se a posição for inválida ou já estiver ocupada, o programa exibirá:
 
-📝 Licença
-Este projeto é de uso educacional. Sinta-se à vontade para estudar o código e propor melhorias.
+```
+Posicao invalida ou ocupada. Tente novamente.
+```
+
+O tabuleiro será impresso a cada jogada.
+
+---
+
+## ✅ Condições de Término
+
+O jogo finaliza quando:
+
+* O jogador vence → "VOCE venceu! Parabens."
+* A CPU vence → "CPU venceu. Boa sorte na proxima."
+* Empate → "Empate!"
+
+---
+
+## 📄 Exemplo de Tabuleiro
+
+```
+Tabuleiro:
+ X  | O  | X
+-----------
+    | X  |  
+-----------
+ O  |    | O
+```
+
+---
+
+## 🛠️ Funções Principais
+
+| Função       | Descrição                       |
+| ------------ | ------------------------------- |
+| main         | Loop principal do jogo          |
+| print_board  | Imprime o tabuleiro formatado   |
+| player_move  | Lê e valida a jogada do jogador |
+| cpu_move     | Implementa a IA da CPU          |
+| check_winner | Verifica vitória ou empate      |
+
+---
+
+## 🚀 Possíveis Melhorias Futuras
+
+* Interface gráfica
+* Níveis de dificuldade
+* Contagem de partidas
+* Multiplayer local
+
+---
+
+## 👨‍💻 Autor
+
+Desenvolvido como exercício de lógica e programação em baixo nível utilizando **Assembly MIPS**.
+
+---
+
+Se quiser, posso gerar um README em inglês ou adaptar para GitHub com badges e estrutura mais formal 📘
