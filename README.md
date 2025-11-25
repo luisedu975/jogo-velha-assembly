@@ -143,7 +143,7 @@ Tabuleiro:
 
 ## 👨‍💻 Autor
 
-Desenvolvido por João Victor Uchôa, Pablo José Pellegrino, Luís Eduardo Bérard e Yan Nunes. Para a disciplina de Infraestrutura de Hardware da CESAR School. Um exercício de lógica e programação em baixo nível utilizando **Assembly MIPS**.
+Desenvolvido por João Victor Uchôa, Pablo José Pellegrino, Luís Eduardo Bérard e Yan Ribeiro Nunes. Para a disciplina de Infraestrutura de Hardware da CESAR School. Um exercício de lógica e programação em baixo nível utilizando **Assembly MIPS**.
 
 ---
 
